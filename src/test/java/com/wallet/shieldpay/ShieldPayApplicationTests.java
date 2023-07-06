@@ -22,7 +22,7 @@ class ShieldPayApplicationTests {
                 .firstName("Ned")
                 .lastName("Stark")
                 .password("P@ssw0rd")
-                .email("example@example.com")
+                .email("osisiogubenjamin1@gmail.com")
                 .build();
         assertNull(userService.findUserByEmail(signUpRequest.getEmail()));
     }

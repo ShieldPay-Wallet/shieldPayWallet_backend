@@ -1,20 +1,5 @@
 package utils;
-
-import java.security.SecureRandom;
-
-public class OTPGenerator {
-    private static SecureRandom secureRandom = new SecureRandom();
-    public static String generate() {
-        StringBuilder OTPBuild = new StringBuilder()
-                .append(digitGenerator())
-                .append(digitGenerator())
-                .append(digitGenerator())
-                .append(digitGenerator());
-
-        return OTPBuild.toString();
-    }
-    private static int digitGenerator(){
-        return secureRandom.nextInt(9);
-    }
-
+ @FunctionalInterface
+public interface OTPGenerator {
+     String generate();
 }

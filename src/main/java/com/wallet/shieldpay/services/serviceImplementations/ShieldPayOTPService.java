@@ -5,7 +5,7 @@ import com.wallet.shieldpay.repositories.OTPRepository;
 import com.wallet.shieldpay.services.serviceInterface.OTPService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import utils.OTPGenerator;
+import utils.OTPGeneratorImplementation;
 
 @Service
 public class ShieldPayOTPService implements OTPService {
@@ -16,7 +16,7 @@ public class ShieldPayOTPService implements OTPService {
      */
     @Override
     public String generateOTP(String email) {
-        String otp = OTPGenerator.generate();
+        String otp = OTPGeneratorImplementation.generate();
         OTP createdOtp = OTP.builder()
                 .isActiveOtp(true)
                 .email(email)

@@ -1,11 +1,12 @@
 package com.wallet.shieldpay.models;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
 
 import java.util.Date;
 
@@ -16,12 +17,22 @@ import java.util.Date;
 @Entity
 public class User {
     @Id
+    @GeneratedValue
     private Long userId;
+
     private String WalletId;
 
+    @Column(nullable = false)
+    @NotBlank( message = "This field can not be blank")
     private String firstName;
+    @Column(nullable = false)
     private String lastName;
+
+    @Column(nullable = false)
+//    @Email("[a-zA-Z0-9]")
     private String email;
+    @Column(nullable = false)
+
     private String password;
 
     private String walletAccountNumber;
@@ -29,6 +40,8 @@ public class User {
     private boolean isActive;
     private boolean isConfirmedUser;
 
+    @Column(nullable = false)
     private Date dateRegistered;
+
     private Date dateConfirmed;
 }

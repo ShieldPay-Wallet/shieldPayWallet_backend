@@ -19,7 +19,7 @@ public class MailSenderService implements MailSenderServiceInterface {
         message.setTo(emailCreator.getReceiverEmail());
         message.setSubject(emailCreator.getSubject());
 
-//        javaMailSender.send(message);
+        javaMailSender.send(message);
     }
 //    public void sendMimeMail(EmailCreator emailCreator){
 //        MimeMessage mimeMessage = mailSender.createMimeMessage(emailCreator);
