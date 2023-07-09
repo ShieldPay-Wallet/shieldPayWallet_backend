@@ -25,6 +25,7 @@ public class User {
     @Column(nullable = false)
     @NotBlank( message = "This field can not be blank")
     private String firstName;
+
     @Column(nullable = false)
     private String lastName;
 

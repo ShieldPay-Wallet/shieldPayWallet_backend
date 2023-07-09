@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import utils.OTPGeneratorImplementation;
 
+import java.time.LocalDate;
+
 @Service
 public class ShieldPayOTPService implements OTPService {
     @Autowired
@@ -20,7 +22,9 @@ public class ShieldPayOTPService implements OTPService {
         OTP createdOtp = OTP.builder()
                 .isActiveOtp(true)
                 .email(email)
-                .otp(otp).build();
+                .otp(otp)
+                .dateCreated( LocalDate.now())
+                .build();
 
         otpRepository.save(createdOtp);
 

@@ -1,6 +1,7 @@
 package com.wallet.shieldpay.models.UtilityModels;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,10 +18,11 @@ import java.util.Date;
 @Entity
 public class OTP {
     @Id
+    @GeneratedValue
     private Long otpId;
     private String otp;
     private boolean isActiveOtp;
     private String email;
-    private LocalDate dateCreated = LocalDate.now();
+    private LocalDate dateCreated ;
 
 }
