@@ -6,13 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SignUpRequest {
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String password;
-    private String phoneNumber;
+@Builder
+public class WalletCreationRequest {
+    private String accountNumber;
+    private Long userId;
 }

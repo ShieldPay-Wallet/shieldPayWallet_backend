@@ -20,7 +20,7 @@ public class User {
     @GeneratedValue
     private Long userId;
 
-    private String WalletId;
+    private Long WalletId;
 
     @Column(nullable = false)
     @NotBlank( message = "This field can not be blank")
@@ -32,9 +32,12 @@ public class User {
     @Column(nullable = false)
 //    @Email("[a-zA-Z0-9]")
     private String email;
-    @Column(nullable = false)
 
+    @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false)
+    private String phoneNumber;
 
     private String walletAccountNumber;
 

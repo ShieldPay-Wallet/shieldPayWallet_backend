@@ -5,19 +5,17 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
-
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SignUpResponse {
+public class LoginResponse {
+
+    private String firstName;
+    private String lastName;
     private String email;
     private String message;
     private boolean isConfirmedUser;
-
-    private LocalDate dateRegistered = LocalDate.now();
-    private boolean isOtpSent;
-
-}
+    private String walletAccountNumber;
+    private boolean isActive;
+    }
