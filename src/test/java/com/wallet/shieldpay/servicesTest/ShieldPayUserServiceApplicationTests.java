@@ -5,8 +5,8 @@ import com.wallet.shieldpay.dto.response.ForgotPasswordResponse;
 import com.wallet.shieldpay.dto.response.LoginResponse;
 import com.wallet.shieldpay.dto.response.SignUpConfirmationResponse;
 import com.wallet.shieldpay.dto.response.SignUpResponse;
-import com.wallet.shieldpay.exceoptions.EmailAlreadyExistException;
-import com.wallet.shieldpay.exceoptions.InValidEmailException;
+import com.wallet.shieldpay.exceptions.EmailAlreadyExistException;
+import com.wallet.shieldpay.exceptions.InValidEmailException;
 
 import com.wallet.shieldpay.models.User;
 import com.wallet.shieldpay.services.serviceInterface.OTPService;

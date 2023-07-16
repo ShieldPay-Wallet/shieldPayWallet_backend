@@ -1,13 +1,14 @@
 package com.wallet.shieldpay.services.serviceImplementations;
 
+import com.wallet.shieldpay.dto.requests.OtpCreationRequest;
 import com.wallet.shieldpay.dto.requests.SignUpRequest;
 import com.wallet.shieldpay.dto.requests.WalletCreationRequest;
 import com.wallet.shieldpay.dto.response.ForgotPasswordResponse;
 import com.wallet.shieldpay.dto.response.LoginResponse;
 import com.wallet.shieldpay.dto.response.SignUpConfirmationResponse;
 import com.wallet.shieldpay.dto.response.SignUpResponse;
-import com.wallet.shieldpay.exceoptions.EmailAlreadyExistException;
-import com.wallet.shieldpay.exceoptions.InValidEmailException;
+import com.wallet.shieldpay.exceptions.EmailAlreadyExistException;
+import com.wallet.shieldpay.exceptions.InValidEmailException;
 import com.wallet.shieldpay.models.User;
 import com.wallet.shieldpay.models.UtilityModels.EmailCreator;
 import com.wallet.shieldpay.models.UtilityModels.OTP;
@@ -71,6 +72,11 @@ public class ShieldPayUserService implements UserService {
 
                 BeanUtils.copyProperties(user, signUpResponse);
 
+            OtpCreationRequest otpCreationRequest = OtpCreationRequest.builder()
+                    .otp(getMockOtp())
+                    .otpType(SIGNUP)
+                    .email(user.getEmail())
+                    .build();
 
                 otpCounter++;
 
@@ -79,7 +85,7 @@ public class ShieldPayUserService implements UserService {
                                 .receiverEmail(user.getEmail())
                                 .subject("Shield Pay Secure SignUp")
 
-                                .body(otpService.generateOTP(user.getEmail(), getMockOtp(), SIGNUP))
+                                .body(otpService.generateOTP(otpCreationRequest))
 //                                .body(otpService.generateOTP(user.getEmail()))
                                 .build()
                 );
@@ -119,6 +125,7 @@ public class ShieldPayUserService implements UserService {
         String accountNumber = AccountNumberGenerator.generateAccountNumber(phoneNumber);
 
         user.setWalletAccountNumber(accountNumber);
+        user.setDateConfirmed(new Date());
 
         WalletCreationRequest walletCreationRequest = WalletCreationRequest.builder()
                 .userId(user.getUserId())
@@ -150,15 +157,23 @@ public class ShieldPayUserService implements UserService {
 
         if (isValidEmail){
            User user = userRepository.findUserByEmail(email);
-
+               System.out.println(user.isActive());
            if (user != null){
-               BeanUtils.copyProperties(user, loginResponse);
-               loginResponse.setMessage("Login Successful");
-
-               loginResponse.setActive(true);
+                if (user.isConfirmedUser()) {
+                    login(loginResponse, user);
+                }
            }
         }
         return loginResponse;
+    }
+
+    private void login(LoginResponse loginResponse, User user) {
+        BeanUtils.copyProperties(user, loginResponse);
+        loginResponse.setMessage("Login Successful");
+
+        user.setActive(true);
+        loginResponse.setActive(user.isActive());
+        userRepository.save(user);
     }
 
     /**
@@ -170,13 +185,18 @@ public class ShieldPayUserService implements UserService {
         ForgotPasswordResponse forgotPasswordResponse = new ForgotPasswordResponse();
 
         otpCounter++;
+        OtpCreationRequest otpCreationRequest = OtpCreationRequest.builder()
+                .otp(getMockOtp())
+                .otpType(FORGOT_PASSWORD)
+                .email(email)
+                .build();
 
         emailSenderService.sendSimpleMail(
                 EmailCreator.builder()
                         .receiverEmail(email)
                         .subject("Shield Pay Secure SignUp")
 
-                        .body(otpService.generateOTP(email, getMockOtp(), FORGOT_PASSWORD))
+                        .body(otpService.generateOTP(otpCreationRequest))
 //                                .body(otpService.generateOTP(email))
                         .build()
         );
@@ -212,9 +232,6 @@ public class ShieldPayUserService implements UserService {
             return m.matches();
         }
 
-    public static void main(String[] args) {
-        System.out.println(validatePassword("Pssw0rdhgds"));
-    }
 
         /**
      * @param email

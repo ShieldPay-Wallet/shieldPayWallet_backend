@@ -1,4 +1,4 @@
-package com.wallet.shieldpay.exceoptions;
+package com.wallet.shieldpay.exceptions;
 
 public class EmailAlreadyExistException extends RuntimeException {
     public EmailAlreadyExistException(String message) {

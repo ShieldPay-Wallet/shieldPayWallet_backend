@@ -1,4 +1,4 @@
-package com.wallet.shieldpay.exceoptions;
+package com.wallet.shieldpay.exceptions;
 
 public class InValidEmailException extends RuntimeException {
     public InValidEmailException(String message){

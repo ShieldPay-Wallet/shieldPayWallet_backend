@@ -9,6 +9,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -21,5 +24,7 @@ public class Wallet {
 
     private Long userId;
     private String accountNumber;
+
+
 
 }
