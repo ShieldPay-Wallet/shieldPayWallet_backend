@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/ewallet/user")
+
 public class ShieldPayUserController {
 
     @Autowired
@@ -21,6 +22,7 @@ public class ShieldPayUserController {
 //    }
     @PostMapping("/signUp")
     public ResponseEntity<?> signUp(@RequestBody SignUpRequest signUpRequest){
+        System.out.println(signUpRequest );
        return new ResponseEntity<>(new ApiResponse(true ,userService.signUp(signUpRequest))
                 , HttpStatus.CREATED);
     }
@@ -35,5 +37,6 @@ public class ShieldPayUserController {
         return new ResponseEntity<>(new ApiResponse(true, userService.login(email, password))
                 ,HttpStatus.CREATED);
     }
+
 
 }

@@ -49,9 +49,12 @@ public class ShieldPayUserService implements UserService {
      * @return
      */
     int otpCounter = 0;
+    String otp;
     public String getMockOtp(){
-        String otp = "123" + otpCounter;
         return otp;
+    }
+    public void setMockOtp(){
+         otp = "123" + otpCounter;
     }
     @Override
     public SignUpResponse signUp(SignUpRequest signUpRequest) throws InValidEmailException {
@@ -71,7 +74,7 @@ public class ShieldPayUserService implements UserService {
                 user.setDateRegistered(new Date());
 
                 BeanUtils.copyProperties(user, signUpResponse);
-
+                setMockOtp();
             OtpCreationRequest otpCreationRequest = OtpCreationRequest.builder()
                     .otp(getMockOtp())
                     .otpType(SIGNUP)

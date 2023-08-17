@@ -24,7 +24,7 @@ public class Wallet {
 
     private Long userId;
     private String accountNumber;
-
+    private BigDecimal balance = new BigDecimal(0.00);
 
 
 }
