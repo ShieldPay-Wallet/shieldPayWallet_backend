@@ -9,6 +9,7 @@ import com.wallet.shieldpay.dto.response.SignUpConfirmationResponse;
 import com.wallet.shieldpay.dto.response.SignUpResponse;
 import com.wallet.shieldpay.exceptions.EmailAlreadyExistException;
 import com.wallet.shieldpay.exceptions.InValidEmailException;
+import com.wallet.shieldpay.exceptions.UserNotFoundException;
 import com.wallet.shieldpay.models.User;
 import com.wallet.shieldpay.models.UtilityModels.EmailCreator;
 import com.wallet.shieldpay.models.UtilityModels.OTP;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 import utils.AccountNumberGenerator;
 
 import java.util.Date;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,11 +62,8 @@ public class ShieldPayUserService implements UserService {
     public SignUpResponse signUp(SignUpRequest signUpRequest) throws InValidEmailException {
         boolean isValidPassword = validatePassword(signUpRequest.getPassword());
         boolean isValidEmail = validateEmail(signUpRequest.getEmail());
-        boolean isAlreadyUsedEmail =  isAlreadyUsedEmail(signUpRequest.getEmail());
+        confirmUserAlreadyExists(signUpRequest.getEmail());
 
-        if (isAlreadyUsedEmail){
-            throw new EmailAlreadyExistException("This email already exists ");
-        }
             SignUpResponse signUpResponse = new SignUpResponse();
 
         if(isValidEmail) {
@@ -121,7 +120,7 @@ public class ShieldPayUserService implements UserService {
         SignUpConfirmationResponse signUpConfirmationResponse = new SignUpConfirmationResponse();
 
         if (userOtp != null) {
-            User user = userRepository.findUserByEmail(userOtp.getEmail());
+            User user = findUserByEmail(userOtp.getEmail());
 
         user.setConfirmedUser(true);
         String phoneNumber = user.getPhoneNumber();
@@ -159,8 +158,8 @@ public class ShieldPayUserService implements UserService {
         LoginResponse loginResponse = new LoginResponse();
 
         if (isValidEmail){
-           User user = userRepository.findUserByEmail(email);
-               System.out.println(user.isActive());
+           User user = findUserByEmail(email);
+
            if (user != null){
                 if (user.isConfirmedUser()) {
                     login(loginResponse, user);
@@ -213,9 +212,9 @@ public class ShieldPayUserService implements UserService {
     }
 
 
-    private boolean isAlreadyUsedEmail(String email){
-        User user = userRepository.findUserByEmail(email);
-        return user != null;
+    private void confirmUserAlreadyExists(String email){
+      Optional<User> optionalUser = userRepository.findUserByEmail(email);
+      if(optionalUser.isPresent()) throw new EmailAlreadyExistException("This email already exists ");
     }
 
 
@@ -242,8 +241,11 @@ public class ShieldPayUserService implements UserService {
      */
     @Override
     public User findUserByEmail(String email) {
-        User user = userRepository.findUserByEmail(email);
-        return user;
+
+        return userRepository.findUserByEmail(email)
+                .orElseThrow( () -> {
+                    throw new UserNotFoundException("User Does Not Exist ");
+                });
     }
 
 
