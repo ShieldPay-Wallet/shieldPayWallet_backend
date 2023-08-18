@@ -7,7 +7,7 @@ import com.wallet.shieldpay.dto.response.ForgotPasswordResponse;
 import com.wallet.shieldpay.dto.response.LoginResponse;
 import com.wallet.shieldpay.dto.response.SignUpConfirmationResponse;
 import com.wallet.shieldpay.dto.response.SignUpResponse;
-import com.wallet.shieldpay.exceptions.EmailAlreadyExistException;
+import com.wallet.shieldpay.exceptions.UserAlreadyExistException;
 import com.wallet.shieldpay.exceptions.InValidEmailException;
 import com.wallet.shieldpay.exceptions.UserNotFoundException;
 import com.wallet.shieldpay.models.User;
@@ -214,7 +214,7 @@ public class ShieldPayUserService implements UserService {
 
     private void confirmUserAlreadyExists(String email){
       Optional<User> optionalUser = userRepository.findUserByEmail(email);
-      if(optionalUser.isPresent()) throw new EmailAlreadyExistException("This email already exists ");
+      if(optionalUser.isPresent()) throw new UserAlreadyExistException("User Already Exists ");
     }
 
 

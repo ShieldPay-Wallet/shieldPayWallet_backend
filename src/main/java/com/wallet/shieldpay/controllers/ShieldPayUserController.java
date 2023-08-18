@@ -2,9 +2,7 @@ package com.wallet.shieldpay.controllers;
 
 import com.wallet.shieldpay.dto.requests.SignUpRequest;
 import com.wallet.shieldpay.dto.response.ApiResponse;
-import com.wallet.shieldpay.dto.response.SignUpResponse;
 import com.wallet.shieldpay.services.serviceInterface.UserService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
