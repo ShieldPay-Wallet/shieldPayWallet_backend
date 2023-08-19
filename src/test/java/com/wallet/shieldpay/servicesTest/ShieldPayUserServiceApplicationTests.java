@@ -1,5 +1,6 @@
 package com.wallet.shieldpay.servicesTest;
 
+import com.wallet.shieldpay.dto.requests.ChangePasswordRequest;
 import com.wallet.shieldpay.dto.requests.CheckBalanceRequest;
 import com.wallet.shieldpay.dto.requests.DepositRequest;
 import com.wallet.shieldpay.dto.requests.SignUpRequest;
@@ -12,6 +13,7 @@ import com.wallet.shieldpay.exceptions.InValidEmailException;
 
 import com.wallet.shieldpay.exceptions.UserNotFoundException;
 import com.wallet.shieldpay.models.User;
+import com.wallet.shieldpay.repositories.UserRepository;
 import com.wallet.shieldpay.services.serviceImplementations.ShieldPayUserService;
 import com.wallet.shieldpay.services.serviceInterface.OTPService;
 import com.wallet.shieldpay.services.serviceInterface.UserService;
@@ -31,34 +33,43 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 @Slf4j
 class ShieldPayUserServiceApplicationTests {
     @Autowired
-    private UserService userService = new ShieldPayUserService();
+    private UserService userService;
     @Autowired
     private WalletService walletService;
+    @Autowired
+    UserRepository userRepository;
+    private  SignUpRequest signUpRequestForLoggedInUser;
     private SignUpRequest setUpSignUpRequest;
     private SignUpRequest signUpRequest;
-    private SignUpResponse signUpResponse;
+    private SignUpResponse setUpSignUpResponse;
     private SignUpResponse signUpResponseForLoggedInUser;
+    private SignUpResponse signUpResponse ;
     private LoginResponse loginResponse;
+
+    private String password ;
+    private String email ;
+    private User foundUser ;
     @Autowired
     OTPService otpService;
     static int signUpWithConfirmationCounter = 0;
-    static int needConfirmation = 0;
-    static int OtpIsSent = 0;
+
     static int forgetPasswordCount = 0;
     static int otpIsDeletedOnceConfirmed = 0;
     static int walletCreatedOnConfirmation = 0;
 
-    User user = null;
+
     @BeforeEach
     void setUp(){
         setUpSignUpRequest = createSignUpRequest("setupuser@gmail.com","09062027236");
         try {
-            signUpResponse = userService.signUp(setUpSignUpRequest);
+            userServiceSignUp(setUpSignUpRequest,setUpSignUpResponse);
 
         }catch (UserAlreadyExistException e) {
-            log.error("User set up log catch  block {}", e.getMessage());
+            log.error("User set up log catch  block failed {}", "----- {}".repeat(5), e.getMessage());
+
         }
-        user = userService.findUserByEmail(setUpSignUpRequest.getEmail());
+        setFoundUserFoundByEmail(setUpSignUpRequest.getEmail());
+        assertNotNull(foundUser);
 
         createALoggedInUser();
     }
@@ -75,33 +86,74 @@ class ShieldPayUserServiceApplicationTests {
 
     private void createALoggedInUser(){
 
-        SignUpRequest signUpRequestForLoggedInUser = SignUpRequest.builder()
+        signUpRequestForLoggedInUser = SignUpRequest.builder()
                 .firstName("logged_in")
                 .lastName("logged-in")
                 .password("P@ssw0rd")
                 .email("loggeinuser@gmail.com")
                 .phoneNumber("09062028394")
                 .build();
-        String password = null;
-        String email = null;
+
+
         try {
-            signUpResponseForLoggedInUser = userService.signUp(signUpRequestForLoggedInUser);
-                email = signUpRequestForLoggedInUser.getEmail();
-              password = signUpRequestForLoggedInUser.getPassword();
-        }catch (UserAlreadyExistException e) {
-            log.error("create A Logged In User catch block {}", e.getMessage());
-            User foundUser = userService.findUserByEmail(signUpRequestForLoggedInUser.getEmail());
-            email = foundUser.getEmail();
-            password = foundUser.getPassword();
-
+            createALoggedInUserTryBlock();
+        }catch (UserAlreadyExistException exception) {
+            createALoggedInUserCatchBlock(exception);
         }
-        String otp = userService.getMockOtp();
+        finally {
+            createALoggedInUserFinallyBlock();
+        }
 
+    }
+    private void createALoggedInUserTryBlock(){
+        userServiceSignUp(signUpRequestForLoggedInUser,signUpResponseForLoggedInUser);
+        setEmailAndPasswordVariables(
+                signUpRequestForLoggedInUser.getEmail(),
+                signUpRequestForLoggedInUser.getPassword()
+        );
+        setFoundUserFoundByEmail(signUpRequestForLoggedInUser.getEmail());
+    }
+    private void createALoggedInUserCatchBlock(Exception exception) {
+        log.error("create A Logged In User catch block {}", "----- {}".repeat(3), exception.getMessage());
+        findAndDeleteUser(signUpRequestForLoggedInUser.getEmail());
+        userServiceSignUp(signUpRequestForLoggedInUser, signUpResponseForLoggedInUser);
+        setEmailAndPasswordVariables(
+                signUpRequestForLoggedInUser.getEmail(),
+                signUpRequestForLoggedInUser.getPassword()
+        );
+    }
+    private void createALoggedInUserFinallyBlock(){
+        String otp = userService.getMockOtp();
         assertTrue(otpService.isExisting(otp));
+
+        assertEquals(foundUser.getEmail(), signUpRequestForLoggedInUser.getEmail());
+
+        SignUpConfirmationResponse signUpConfirmedResponse = userService.userOTPCodeConfirmation(otp);
+
+        assertEquals(signUpConfirmedResponse.getEmail(), signUpRequestForLoggedInUser.getEmail());
+
+        assertTrue(signUpConfirmedResponse.isConfirmedUser());
+
         userService.userOTPCodeConfirmation(otp);
 
         loginResponse = userService.login(email, password);
-
+    }
+    private void findAndDeleteUser(String email){
+        setFoundUserFoundByEmail(email);
+        userRepository.delete(foundUser);
+    }
+    private void userServiceSignUp(SignUpRequest request, SignUpResponse response) {
+        response = userService.signUp(request);
+    }
+    private SignUpResponse userServiceSignUp(SignUpRequest request) {
+        return userService.signUp(request);
+    }
+    private void setFoundUserFoundByEmail(String email){
+        foundUser = userService.findUserByEmail(email);
+    }
+    private void setEmailAndPasswordVariables(String email, String password){
+        this.email = email;
+        this.password = password;
     }
     @Test
     void unRegisteredUserCanNotBeFound(){
@@ -115,13 +167,14 @@ class ShieldPayUserServiceApplicationTests {
     void testUserCanSignUpButNeedConfirmation() {
        signUpRequest = createSignUpRequest("favourtwo@gmail.com","08133567834");
 
-
         SignUpResponse signUpResponse = null;
-        if (needConfirmation == 0) {
-         signUpResponse = userService.signUp(signUpRequest);
-            needConfirmation++;
-        }
 
+        try {
+            signUpResponse = userService.signUp(signUpRequest);
+
+        }catch (UserAlreadyExistException e) {
+            log.error( "testUserCanSignUpButNeedConfirmation --- --- ----- ----- {}".repeat(10), e.getMessage());
+        }
         assertNotNull(signUpResponse);
 
         assertFalse(signUpResponse.isConfirmedUser());
@@ -132,37 +185,47 @@ class ShieldPayUserServiceApplicationTests {
     void onSignUpOtpIsSent() {
         signUpRequest = createSignUpRequest("otpissent@gmail.com","07533565836");
 
-        SignUpResponse signUpResponse = null;
-        if (OtpIsSent == 0) {
-            signUpResponse = userService.signUp(signUpRequest);
-            OtpIsSent++;
+
+        try {
+            signUpResponse =  userServiceSignUp(signUpRequest);
+
+        }catch (UserAlreadyExistException e) {
+            log.error( "onSignUpOtpIsSent --- --- ----- ----- {}".repeat(7), e.getMessage());
+            setFoundUserFoundByEmail(signUpRequest.getEmail());
+            findAndDeleteUser(foundUser.getEmail());
+            userServiceSignUp(signUpRequest, signUpResponse);
         }
 
         String message ="An OTP code has been sent to " +
                 signUpRequest.getEmail() + ". Please do not share this code with others";
 
-//        assertNotNull(signUpResponse);
-
-        assertFalse(user.isConfirmedUser());
-        assertNotNull(user.getDateRegistered());
+        assertNotNull(signUpResponse);
+        setFoundUserFoundByEmail(signUpRequest.getEmail());
+        assertFalse(foundUser.isConfirmedUser());
+        assertNotNull(foundUser.getDateRegistered());
         assertEquals(signUpResponse.getMessage(), message);
+        assertEquals(signUpResponse.getEmail(), foundUser.getEmail());
 
-        assertFalse(user.isConfirmedUser());
+        assertFalse(foundUser.isConfirmedUser());
         assertTrue(signUpResponse.isOtpSent());
     }
+
+
+
     @Test
     void testUserCanSignUpWithConfirmation() {
         signUpRequest =createSignUpRequest("userCanSignUpWithConfirmation@gmail.com","09045674275");
 
         if (signUpWithConfirmationCounter == 0) {
-            signUpResponse = userService.signUp(signUpRequest);
+            setUpSignUpResponse = userService.signUp(signUpRequest);
             signUpWithConfirmationCounter++;
         }
-        user = userService.findUserByEmail(signUpRequest.getEmail());
+        setFoundUserFoundByEmail(setUpSignUpRequest.getEmail());
+        foundUser = userService.findUserByEmail(signUpRequest.getEmail());
 
         String OTP = userService.getMockOtp();
 
-        assertEquals(user.getEmail(), signUpRequest.getEmail());
+        assertEquals(foundUser.getEmail(), signUpRequest.getEmail());
 
         SignUpConfirmationResponse signUpConfirmedResponse = userService.userOTPCodeConfirmation(OTP);
 
@@ -194,29 +257,16 @@ class ShieldPayUserServiceApplicationTests {
     }
     @Test
     void testThatUserCannotSignUpWithTheSameEmail() {
-        signUpRequest = SignUpRequest.builder()
-                .firstName("John")
-                .lastName("wick")
-                .password("P@ssw0rd")
-                .email("osisiogubenjamin1@gmail.com")
-                .build();
+        setFoundUserFoundByEmail(setUpSignUpRequest.getEmail());
+       assertNotNull(foundUser);
 
-        assertThrows(  UserAlreadyExistException.class,()-> userService.signUp(signUpRequest));
+        assertThrows(  UserAlreadyExistException.class,()-> userService.signUp(setUpSignUpRequest));
     }
     @Test
     void testUserCanLogin(){
-       
-        String OTP = userService.getMockOtp();
-        assertEquals(user.getEmail(), signUpRequest.getEmail());
 
-        SignUpConfirmationResponse signUpConfirmedResponse = userService.userOTPCodeConfirmation(OTP);
-
-        assertEquals(signUpConfirmedResponse.getEmail(), signUpRequest.getEmail());
-
-        assertTrue(signUpConfirmedResponse.isConfirmedUser());
-
-        String email = user.getEmail();
-        String password = signUpRequest.getPassword();
+        String email = signUpRequestForLoggedInUser.getEmail();
+        String password = signUpRequestForLoggedInUser.getPassword();
 
         LoginResponse loginResponse = userService.login(email, password);
 
@@ -255,10 +305,7 @@ class ShieldPayUserServiceApplicationTests {
 
         String message ="An OTP code has been sent to " +
                 signUpRequest.getEmail() + ". Please do not share this code with others";
-
-
-
-
+        
     }
     @Test
     public void otpIsDeletedAfterConfirmation() {
@@ -345,8 +392,24 @@ class ShieldPayUserServiceApplicationTests {
 
        walletService.deposit(depositRequest);
 
-
          balance = walletService.checkBalance(checkBalanceRequest);
                 assertEquals(balance, new BigDecimal(3000.0));
+    }
+    @Test
+    void checkThatUserCanChangePassword(){
+        setFoundUserFoundByEmail(setUpSignUpRequest.getEmail());
+        String email = foundUser.getEmail();
+        String oldPassword = foundUser.getPassword();
+        String newPassword = "W0rdp@ss";
+
+        ChangePasswordRequest changeRequest = new ChangePasswordRequest();
+        changeRequest.setEmail(email);
+        changeRequest.setOldPassword(oldPassword);
+        changeRequest.setNewPassword(newPassword);
+
+
+        var response = userService.changePassword(changeRequest);
+        assertEquals(response.getMessage() , "Password Change Successful");
+
     }
 }

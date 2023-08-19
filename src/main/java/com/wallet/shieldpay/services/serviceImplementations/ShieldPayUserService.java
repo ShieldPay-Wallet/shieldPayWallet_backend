@@ -1,12 +1,11 @@
 package com.wallet.shieldpay.services.serviceImplementations;
 
+import com.wallet.shieldpay.dto.requests.ChangePasswordRequest;
 import com.wallet.shieldpay.dto.requests.OtpCreationRequest;
 import com.wallet.shieldpay.dto.requests.SignUpRequest;
 import com.wallet.shieldpay.dto.requests.WalletCreationRequest;
-import com.wallet.shieldpay.dto.response.ForgotPasswordResponse;
-import com.wallet.shieldpay.dto.response.LoginResponse;
-import com.wallet.shieldpay.dto.response.SignUpConfirmationResponse;
-import com.wallet.shieldpay.dto.response.SignUpResponse;
+import com.wallet.shieldpay.dto.response.*;
+import com.wallet.shieldpay.exceptions.InvalidCredentialsException;
 import com.wallet.shieldpay.exceptions.UserAlreadyExistException;
 import com.wallet.shieldpay.exceptions.InValidEmailException;
 import com.wallet.shieldpay.exceptions.UserNotFoundException;
@@ -158,6 +157,7 @@ public class ShieldPayUserService implements UserService {
         LoginResponse loginResponse = new LoginResponse();
 
         if (isValidEmail){
+        System.out.println(email);
            User user = findUserByEmail(email);
 
            if (user != null){
@@ -210,6 +210,24 @@ public class ShieldPayUserService implements UserService {
         forgotPasswordResponse.setOtpSent(true);
         return forgotPasswordResponse;
     }
+
+    /**
+     * @param changeRequest
+ ````* throws UserNotFoundException if the user is not found in the database
+     * @return
+     */
+    @Override
+    public ChangePasswordResponse changePassword(ChangePasswordRequest changeRequest) {
+//        System.out.println(userRepository.findUserByEmail("changepassword@gmail.com"));
+       User user = findUserByEmail(changeRequest.getEmail());
+
+       if (!user.getPassword().equals( changeRequest.getOldPassword()))
+           throw new InvalidCredentialsException("Invalid Credentials");
+       user.setPassword(changeRequest.getNewPassword());
+       userRepository.save(user);
+       return ChangePasswordResponse.builder().message("Password Change Successful").build();
+    }
+
 
 
     private void confirmUserAlreadyExists(String email){

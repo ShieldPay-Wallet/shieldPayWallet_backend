@@ -1,5 +1,6 @@
 package com.wallet.shieldpay.controllers;
 
+import com.wallet.shieldpay.dto.requests.ChangePasswordRequest;
 import com.wallet.shieldpay.dto.requests.SignUpRequest;
 import com.wallet.shieldpay.dto.response.ApiResponse;
 import com.wallet.shieldpay.services.serviceInterface.UserService;
@@ -28,12 +29,20 @@ public class ShieldPayUserController {
     public ResponseEntity<?> userOTPCodeConfirmation(@PathVariable String otp){
 
         return new ResponseEntity<>(new ApiResponse(true, userService.userOTPCodeConfirmation(otp))
-                , HttpStatus.CREATED);
+                , HttpStatus.ACCEPTED);
     }
     @GetMapping("/userLogin/{email}/{password}")
     public ResponseEntity<?> login(@PathVariable String email,@PathVariable String password){
         return new ResponseEntity<>(new ApiResponse(true, userService.login(email, password))
-                ,HttpStatus.CREATED);
+                ,HttpStatus.ACCEPTED);
+    }
+    @PatchMapping("/changePassword")
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest){
+        return new ResponseEntity<>(
+                new ApiResponse(true,
+                        userService.changePassword(changePasswordRequest)
+                )
+                ,HttpStatus.ACCEPTED);
     }
 
 
