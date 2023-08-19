@@ -69,6 +69,8 @@ public class ShieldPayUserService implements UserService {
 //            if (isValidPassword ){
                 User user = new User();
                 BeanUtils.copyProperties(signUpRequest, user);
+
+                user.setPassword(signUpRequest.getPassword().strip());
                 user.setDateRegistered(new Date());
 
                 BeanUtils.copyProperties(user, signUpResponse);
@@ -157,7 +159,6 @@ public class ShieldPayUserService implements UserService {
         LoginResponse loginResponse = new LoginResponse();
 
         if (isValidEmail){
-        System.out.println(email);
            User user = findUserByEmail(email);
 
            if (user != null){
@@ -218,7 +219,6 @@ public class ShieldPayUserService implements UserService {
      */
     @Override
     public ChangePasswordResponse changePassword(ChangePasswordRequest changeRequest) {
-//        System.out.println(userRepository.findUserByEmail("changepassword@gmail.com"));
        User user = findUserByEmail(changeRequest.getEmail());
 
        if (!user.getPassword().equals( changeRequest.getOldPassword()))
