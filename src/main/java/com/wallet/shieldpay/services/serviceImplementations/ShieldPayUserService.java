@@ -12,7 +12,6 @@ import com.wallet.shieldpay.exceptions.UserNotFoundException;
 import com.wallet.shieldpay.models.User;
 import com.wallet.shieldpay.models.UtilityModels.EmailCreator;
 import com.wallet.shieldpay.models.UtilityModels.OTP;
-import com.wallet.shieldpay.models.Wallet;
 import com.wallet.shieldpay.repositories.UserRepository;
 import com.wallet.shieldpay.services.serviceInterface.MailSenderServiceInterface;
 import com.wallet.shieldpay.services.serviceInterface.OTPService;

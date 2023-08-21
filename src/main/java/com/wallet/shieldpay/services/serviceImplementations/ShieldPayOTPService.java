@@ -3,7 +3,6 @@ package com.wallet.shieldpay.services.serviceImplementations;
 import com.wallet.shieldpay.dto.requests.OtpCreationRequest;
 import com.wallet.shieldpay.models.User;
 import com.wallet.shieldpay.models.UtilityModels.OTP;
-import com.wallet.shieldpay.models.UtilityModels.OTPType;
 import com.wallet.shieldpay.repositories.OTPRepository;
 import com.wallet.shieldpay.services.serviceInterface.OTPService;
 import org.springframework.beans.factory.annotation.Autowired;
