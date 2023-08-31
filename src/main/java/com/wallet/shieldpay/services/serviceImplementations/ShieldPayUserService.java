@@ -12,6 +12,7 @@ import com.wallet.shieldpay.exceptions.UserNotFoundException;
 import com.wallet.shieldpay.models.User;
 import com.wallet.shieldpay.models.UtilityModels.EmailCreator;
 import com.wallet.shieldpay.models.UtilityModels.OTP;
+import com.wallet.shieldpay.models.Wallet;
 import com.wallet.shieldpay.repositories.UserRepository;
 import com.wallet.shieldpay.services.serviceInterface.MailSenderServiceInterface;
 import com.wallet.shieldpay.services.serviceInterface.OTPService;
@@ -56,8 +57,15 @@ public class ShieldPayUserService implements UserService {
     public void setMockOtp(){
          otp = "123" + otpCounter;
     }
+
+    /**
+     * @param signUpRequest
+         * throws UserAlreadyExistsException if the user exists in the database
+     * throws InvalidCredentialsException if email or password is incorrect
+     * @return
+     */
     @Override
-    public SignUpResponse signUp(SignUpRequest signUpRequest) throws InValidEmailException {
+    public SignUpResponse signUp(SignUpRequest signUpRequest) {
         boolean isValidPassword = validatePassword(signUpRequest.getPassword());
         boolean isValidEmail = validateEmail(signUpRequest.getEmail());
         confirmUserAlreadyExists(signUpRequest.getEmail());
@@ -105,7 +113,7 @@ public class ShieldPayUserService implements UserService {
 
         }
         else {
-            throw new InValidEmailException("email is invalid");
+            throw new InvalidCredentialsException("Email Invalid");
         }
        return signUpResponse;
     }

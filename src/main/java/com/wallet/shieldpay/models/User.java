@@ -14,7 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Data
 @Entity
-public class Wallet {
+public class User {
     @Id
     @GeneratedValue
     private Long userId;

@@ -1,5 +1,6 @@
 package com.wallet.shieldpay.repositories;
 
+import com.wallet.shieldpay.models.User;
 import com.wallet.shieldpay.models.Wallet;
 import org.springframework.data.jpa.repository.JpaRepository;
 

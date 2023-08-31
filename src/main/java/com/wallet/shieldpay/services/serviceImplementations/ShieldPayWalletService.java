@@ -3,6 +3,7 @@ package com.wallet.shieldpay.services.serviceImplementations;
 import com.wallet.shieldpay.dto.requests.CheckBalanceRequest;
 import com.wallet.shieldpay.dto.requests.DepositRequest;
 import com.wallet.shieldpay.dto.requests.WalletCreationRequest;
+import com.wallet.shieldpay.models.User;
 import com.wallet.shieldpay.models.Wallet;
 import com.wallet.shieldpay.repositories.WalletRepository;
 import com.wallet.shieldpay.services.serviceInterface.WalletService;

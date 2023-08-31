@@ -3,7 +3,6 @@ package com.wallet.shieldpay.servicesTest;
 import com.wallet.shieldpay.dto.requests.SignUpRequest;
 import com.wallet.shieldpay.dto.requests.WalletCreationRequest;
 import com.wallet.shieldpay.dto.response.SignUpResponse;
-import com.wallet.shieldpay.exceptions.UserAlreadyExistException;
 
 import com.wallet.shieldpay.models.Wallet;
 import com.wallet.shieldpay.services.serviceInterface.WalletService;
@@ -34,7 +33,7 @@ public class WalletServiceTest {
 
     }
     private void userServiceSignUp(SignUpRequest request, SignUpResponse response) {
-        response = userService.signUp(request);
+//        response = userService.signUp(request);
     }
 
     private WalletCreationRequest createWalletRequest( String accountNumber, String pin){

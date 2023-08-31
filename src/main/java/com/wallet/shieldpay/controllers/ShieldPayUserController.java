@@ -3,6 +3,7 @@ package com.wallet.shieldpay.controllers;
 import com.wallet.shieldpay.dto.requests.ChangePasswordRequest;
 import com.wallet.shieldpay.dto.requests.SignUpRequest;
 import com.wallet.shieldpay.dto.response.ApiResponse;
+import com.wallet.shieldpay.exceptions.InvalidCredentialsException;
 import com.wallet.shieldpay.services.serviceInterface.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,9 +22,14 @@ public class ShieldPayUserController {
 //    }
     @PostMapping("/signUp")
     public ResponseEntity<?> signUp(@RequestBody SignUpRequest signUpRequest){
-        System.out.println(signUpRequest );
-       return new ResponseEntity<>(new ApiResponse(true ,userService.signUp(signUpRequest))
-                , HttpStatus.CREATED);
+
+        try {
+            return new ResponseEntity<>(new ApiResponse(true ,userService.signUp(signUpRequest))
+                    , HttpStatus.CREATED);
+        } catch (InvalidCredentialsException ex) {
+            return new ResponseEntity<>(new ApiResponse(false, ex.getMessage())
+                    , HttpStatus.EXPECTATION_FAILED);
+        }
     }
     @PostMapping("/otpConfirmation/{otp}")
     public ResponseEntity<?> userOTPCodeConfirmation(@PathVariable String otp){
